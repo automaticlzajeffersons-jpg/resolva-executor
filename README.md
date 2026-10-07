@@ -1,0 +1,1 @@
+# Resolva Executor\n\nExecutor Playwright seguro do Resolva.\n
