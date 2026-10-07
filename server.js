@@ -3,7 +3,8 @@ import { chromium } from "playwright";
 const app=express(); app.use(express.json({limit:"1mb"})); const PORT=process.env.PORT||10000;
 const personal=/cpf|whatsapp|telefone|celular|e-mail|email|senha|login|documento|nascimento/i;
 const commitment=/contrat|assinar|fidelidade|pagamento|cart[aã]o|cancelar|finalizar|confirmar pedido/i;
-const support=/chat|assistente virtual|fale conosco|falar com|suporte|ajuda|negoci|renegoci|atendimento/i;\nconst wrongChannel=/fornecedor|carreira|trabalhe conosco|empresarial|empresa|corporativo|imprensa|ouvidoria/i;
+const support=/chat|assistente virtual|fale conosco|falar com|suporte|ajuda|negoci|renegoci|atendimento/i;
+const wrongChannel=/fornecedor|carreira|trabalhe conosco|empresarial|empresa|corporativo|imprensa|ouvidoria/i;
 app.get("/health",(_,res)=>res.json({ok:true,service:"resolva-executor",engine:"playwright"}));
 async function allText(page){let out="";for(const f of page.frames()){out+="\n"+await f.locator("body").innerText().catch(()=>"");}return out.slice(-30000);}
 async function openSupport(page){for(const f of page.frames()){const els=f.locator('button,a,[role="button"]');const n=Math.min(await els.count().catch(()=>0),120);for(let i=0;i<n;i++){const e=els.nth(i);if(!await e.isVisible().catch(()=>false))continue;const t=((await e.innerText().catch(()=>""))+" "+(await e.getAttribute("aria-label").catch(()=>""))+" "+(await e.getAttribute("title").catch(()=>""))).trim();if(support.test(t)&&!commitment.test(t)&&!wrongChannel.test(t)){await e.click({timeout:2500}).catch(()=>{});await page.waitForTimeout(1800);return true;}}}return false;}
